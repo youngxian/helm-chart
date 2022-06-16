@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: "{{ .Values.name }}"
+    name: {{ .Values.config.name }}
 data:
   config.json: |-
     {
-        "RedisHost": "{{ .Values.redis.host }}"
+        "RedisHost": "{{ .Values.config.host }}"
     }
