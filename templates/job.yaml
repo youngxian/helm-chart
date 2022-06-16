@@ -14,7 +14,7 @@ spec:
       template:
         spec:
           containers:
-          - name: "{{ .Values.name }}"
+          - name: frontend-cron-job
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }} 
           restartPolicy: {{ .Values.restartPolicy }}
