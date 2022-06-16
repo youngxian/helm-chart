@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+    labels:
+{{- if .Values.api.service.labels }}
+{{ toYaml .Values.api.service.labels | indent 4 }}
+{{- else }}
+        app: frontend
+{{- end }}
+{{- if .Values.api.service.annotations }}
+    annotations:
+{{ toYaml .Values.api.service.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.api.service.servicename }}
+    name: {{ .Values.api.service.servicename }}
+{{- else }}
+    name: frontend-svc
+{{- end }}
+spec:
+    {{- if (or (eq .Values.api.service.type "LoadBalancer") (and (eq .Values.api.service.type "NodePort") (not (empty .Values.api.service.nodePort)))) }}
+    externalTrafficPolicy: {{ .Values.api.service.externalTrafficPolicy }}
+    {{- end }}
+    {{- if (and (eq .Values.api.service.type "LoadBalancer") .Values.api.service.loadBalancerSourceRanges) }}
+    loadBalancerSourceRanges:
+    {{- with .Values.api.service.loadBalancerSourceRanges }}
+    {{ toYaml . | indent 2 }}
+  {{- end }}
+  {{- end }}
+    {{- if eq .Values.api.service.type "ClusterIP" }}
+    {{- if .Values.api.service.clusterIP }}
+    clusterIP: {{ .Values.api.service.clusterIP }}
+    {{- end }}
+    {{- end }}
+    ports:
+    - port: {{ .Values.api.service.externalPort }}
+      protocol: TCP
+{{- if (and (eq .Values.api.service.type "NodePort") (not (empty .Values.api.service.nodePort))) }}
+      nodePort: {{.Values.api.service.nodePort}}
+{{- else }}
+      targetPort: api-port
+{{- end }}
+    selector:
+        app: api
+    type: {{ .Values.api.service.type }}
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    labels:
+{{- if .Values.background.service.labels }}
+{{ toYaml .Values.background.service.labels | indent 4 }}
+{{- else }}
+        app: frontend
+{{- end }}
+{{- if .Values.background.service.annotations }}
+    annotations:
+{{ toYaml .Values.background.service.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.background.service.servicename }}
+    name: {{ .Values.background.service.servicename }}
+{{- else }}
+    name: background-svc
+{{- end }}
+spec:
+    {{- if (or (eq .Values.background.service.type "LoadBalancer") (and (eq .Values.background.service.type "NodePort") (not (empty .Values.background.service.nodePort)))) }}
+    externalTrafficPolicy: {{ .Values.background.service.externalTrafficPolicy }}
+    {{- end }}
+    {{- if (and (eq .Values.background.service.type "LoadBalancer") .Values.background.service.loadBalancerSourceRanges) }}
+    loadBalancerSourceRanges:
+    {{- with .Values.background.service.loadBalancerSourceRanges }}
+    {{ toYaml . | indent 2 }}
+  {{- end }}
+  {{- end }}
+    {{- if eq .Values.background.service.type "ClusterIP" }}
+    {{- if .Values.background.service.clusterIP }}
+    clusterIP: {{ .Values.background.service.clusterIP }}
+    {{- end }}
+    {{- end }}
+    ports:
+    - port: {{ .Values.background.service.externalPort }}
+      protocol: TCP
+{{- if (and (eq .Values.background.service.type "NodePort") (not (empty .Values.background.service.nodePort))) }}
+      nodePort: {{.Values.background.service.nodePort}}
+{{- else }}
+      targetPort: background-port
+{{- end }}
+    selector:
+        app: background
+    type: {{ .Values.background.service.type }}

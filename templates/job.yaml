@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: frontend-job
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: {{ .Values.job.concurrencyPolicy }}
+  suspend: {{ .Values.job.suspend }}
+  successfulJobsHistoryLimit: {{ .Values.job.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.job.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .Values.job.startingDeadlineSeconds }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: "{{ .Values.name }}"
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }} 
+          restartPolicy: {{ .Values.restartPolicy }}

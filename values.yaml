@@ -1,0 +1,82 @@
+image:
+  repository: magalixcorp/sample-api
+  pullPolicy: IfNotPresent
+  tag: v1
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+restartPolicy: OnFailure
+
+
+api:
+  replicaCount: 1
+  name: api
+  deployment:
+    # Define scheduler name. Use of 'default' if empty
+    schedulerName: ""
+    ## Chartmuseum Deployment annotations
+    annotations: {}
+    #   name: value
+    labels:
+      app: api
+    #   name: value
+    matchlabels: {}
+    #   name: value
+  replica:
+    annotations: {}
+
+  service:
+    servicename: frontend-svc
+    type: ClusterIP
+    externalTrafficPolicy: Local
+    ## Limits which cidr blocks can connect to service's load balancer
+    ## Only valid if service.type: LoadBalancer
+    loadBalancerSourceRanges: []
+    # clusterIP: None
+    externalPort: 8082
+    nodePort:
+    annotations: {}
+    labels: {}
+
+
+background:
+  replicaCount: 1
+  name: background
+  deployment:
+    # Define scheduler name. Use of 'default' if empty
+    schedulerName: ""
+    ## Chartmuseum Deployment annotations
+    annotations: {}
+    labels:
+        app: background
+    #   name: value
+    matchlabels: {}
+    #   name: value
+  replica:
+    annotations: {}
+
+  service:
+    servicename: frontend-svc
+    type: ClusterIP
+    externalTrafficPolicy: Local
+    ## Limits which cidr blocks can connect to service's load balancer
+    ## Only valid if service.type: LoadBalancer
+    loadBalancerSourceRanges: []
+    # clusterIP: None
+    externalPort: 8080
+    nodePort:
+    annotations: {}
+    labels: {}
+
+
+redis:
+  host: redis-svc
+
+job:
+  jobname: frontend-crod
+  concurrencyPolicy: Allow
+  suspend: false
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 60

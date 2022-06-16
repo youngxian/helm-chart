@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: {{ .Values.background.name }}
+    labels:
+        app: {{ .Values.background.deployment.labels.app }}
+spec:
+    replicas: {{ .Values.background.replicaCount }}
+    selector:
+        matchLabels:
+            app: {{ .Values.background.deployment.labels.app }}
+    template:
+        metadata:
+            name: "{{ .Values.background.name }}"
+            labels:
+                app: {{ .Values.background.deployment.labels.app }}
+        spec:
+            containers:
+            - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              name: background
+              ports:
+                - containerPort: 80
+                  name: background-port
+              env:
+              - name: REDIS_PASSWORD
+                valueFrom:
+                    secretKeyRef:
+                        name: redis-password
+                        key: redis-password
+              volumeMounts:
+              - name: config-volume
+                mountPath: /app/config.json
+                subPath: config.json
+            volumes:
+                - name: config-volume
+                  configMap:
+                    name: app-config

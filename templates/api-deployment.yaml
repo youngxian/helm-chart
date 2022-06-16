@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: frontend
+    annotations:
+    {{- if .Values.api.deployment.annotations }}
+    {{ toYaml .Values.deployment.annotations | indent 4 }}
+    {{- end }}
+    labels:
+        app: {{ .Values.api.deployment.labels.app }}
+spec:
+    replicas: {{ .Values.api.replicaCount }}
+{{- if .Values.api.deployment.matchlabels }}
+    selector:
+        matchLabels:
+{{ toYaml .Values.api.deployment.matchlabels | indent 6 }}
+{{- else}}
+    selector:
+        matchLabels:
+            app: api
+{{- end }}
+    template:
+        metadata:
+            name: "{{ .Values.api.name }}"
+            {{- if .Values.api.deployment.labels }}
+            labels:
+            {{ toYaml .Values.api.labels | indent 6 }}
+            {{- else}}
+            labels:
+                app: api
+            {{- end}}
+        spec:
+            containers:
+            - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              name: "{{ .Values.api.name }}"
+              ports:
+                - containerPort: 80 
+                  name: api-port
+              env:
+              - name: REDIS_PASSWORD
+                valueFrom:
+                    secretKeyRef:
+                        name: redis-password
+                        key: redis-password
+              volumeMounts:
+              - name: config-volume
+                mountPath: /app/config.json
+                subPath: config.json
+            volumes:
+                - name: config-volume
+                  configMap:
+                    name: app-config
