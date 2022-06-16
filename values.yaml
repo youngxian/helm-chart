@@ -70,8 +70,9 @@ background:
     labels: {}
 
 
-redis:
+config:
   host: redis-svc
+  name: app-config
 
 job:
   jobname: frontend-crod
